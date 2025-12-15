@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.analyzeTranscript = analyzeTranscript;
 const vertexai_1 = require("@google-cloud/vertexai");
 const vertexAI = new vertexai_1.VertexAI({
-    project: "inzwa-hackathon", // Hardcoded project ID (GCLOUD_PROJECT is reserved by Firebase)
+    project: "inzwa-hackathon",
     location: "us-central1",
 });
 const model = vertexAI.getGenerativeModel({ model: "gemini-2.5-flash" });

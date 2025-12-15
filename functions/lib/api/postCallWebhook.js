@@ -53,22 +53,17 @@ exports.postCallWebhook = functions.https.onRequest(async (req, res) => {
         for (const entry of transcript) {
             const nluResult = await (0, analyzeTranscript_1.analyzeTranscript)(entry);
             results.push({ entry, nlu: nluResult });
-            // Only write to Firestore if emulator is available (skip if not running)
-            try {
-                await db.collection("intents").add({
-                    store_id,
-                    raw_intent: entry,
-                    nlu: nluResult,
-                    source: "voice",
-                    timestamp: FieldValue.serverTimestamp(),
-                });
-            }
-            catch (dbError) {
-                // Firestore not available - that's okay for testing
-                console.log("Firestore write skipped (emulator may not be running):", dbError?.message || dbError);
-            }
+            // This write targets the Firestore database for the current Firebase project.
+            // If it fails, we *do not* swallow the error, so you can see real failures
+            // in the logs and the HTTP response.
+            await db.collection("intents").add({
+                store_id,
+                raw_intent: entry,
+                nlu: nluResult,
+                source: "voice",
+                timestamp: FieldValue.serverTimestamp(),
+            });
         }
-        // Return NLU results for testing
         res.status(200).json({
             message: "Transcript processed successfully",
             results: results,
