@@ -25,7 +25,6 @@ exports.postCallWebhook = functions.https.onRequest(
         const nluResult = await analyzeTranscript(entry);
         results.push({ entry, nlu: nluResult });
 
-        // Only write to Firestore if emulator is available (skip if not running)
         try {
           await db.collection("intents").add({
             store_id,
@@ -35,7 +34,6 @@ exports.postCallWebhook = functions.https.onRequest(
             timestamp: FieldValue.serverTimestamp(),
           });
         } catch (dbError: any) {
-          // Firestore not available - that's okay for testing
           console.log(
             "Firestore write skipped (emulator may not be running):",
             dbError?.message || dbError
@@ -43,7 +41,6 @@ exports.postCallWebhook = functions.https.onRequest(
         }
       }
 
-      // Return NLU results for testing
       res.status(200).json({
         message: "Transcript processed successfully",
         results: results,

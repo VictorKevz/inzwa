@@ -1,7 +1,7 @@
 import { VertexAI } from "@google-cloud/vertexai";
 
 const vertexAI = new VertexAI({
-  project: "inzwa-hackathon", // Hardcoded project ID (GCLOUD_PROJECT is reserved by Firebase)
+  project: "inzwa-hackathon",
   location: "us-central1",
 });
 
