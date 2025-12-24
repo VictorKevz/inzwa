@@ -91,12 +91,31 @@ dashboard/ (visualize insights)
 
 1. **ElevenLabs → Functions**: Voice conversations are sent as POST requests to `postCallWebhook` endpoint
 2. **Functions → Firestore**: NLU-processed intents are stored in the `intents` collection with schema:
-   - `store_id`
-   - `raw_intent` (original transcript)
-   - `nlu` (structured analysis: intent_type, normalized_intent, product_mentions, sentiment, confidence)
+   - `merchant_id` (multi-merchant support)
+   - `raw_text` (original transcript from ElevenLabs)
+   - `intent_type` ("browse" | "compare" | "buy")
+   - `normalized_intent` (NLU-normalized for clustering)
+   - `category` (product category)
+   - `product_mentions[]` (product_ids mentioned)
+   - `recommendation_shown[]` (product_ids shown)
+   - `accepted` (true | false | null)
+   - `rejection_reason` (if rejected: "out_of_stock" | "variant_missing" | "price_too_high" | "product_not_found" | "feature_missing")
+   - `sentiment` ("positive" | "neutral" | "negative")
+   - `confidence` (0-1 NLU score)
+   - `price_expectation` (customer's stated price)
+   - `estimated_revenue` (potential revenue if fulfilled)
+   - `variant_attributes` (size, color, etc. if specified)
    - `source: "voice"`
    - `timestamp`
-3. **Dashboard → Firestore**: Reads from `intents` collection to display analytics
+   
+   **Aggregates** are computed via Cloud Functions (scheduled triggers) for fast dashboard queries:
+   - `DailyAggregate` - Executive overview metrics
+   - `WeeklyAggregate` - Trending intents with growth rates
+   - `CategoryAggregate` - Category-level demand analysis
+   - `ProductAggregate` - Product-level acceptance rates
+   
+   See `functions/DATABASE_SCHEMA_EXAMPLE.md` for complete schema.
+3. **Dashboard → Firestore**: Reads from `intents` collection and pre-computed `aggregates` collection to display analytics (see `functions/DASHBOARD_PLAN.md` for dashboard views)
 4. **Demo Store → Functions**: Calls `realTimeRecommendation` endpoint for product suggestions
 
 ## Getting Started
@@ -146,11 +165,9 @@ dashboard/ (visualize insights)
 
 ## Deployment URLs
 
-After deploying functions, you'll get:
-- `https://postcallwebhook-ctmigyxh3q-uc.a.run.app` - Post-call webhook endpoint
-- `https://realtimerecommendation-ctmigyxh3q-uc.a.run.app` - Real-time recommendations endpoint
+After deploying functions, you'll get deployment URLs from the Firebase CLI output. Use these URLs in your ElevenLabs webhook configuration.
 
-Use these URLs in ElevenLabs webhook configuration.
+**Security Note:** These endpoints are publicly accessible. The `postCallWebhook` endpoint validates ElevenLabs webhook signatures when configured. Consider implementing additional rate limiting and authentication for production use.
 
 ## License
 

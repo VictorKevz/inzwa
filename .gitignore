@@ -67,6 +67,7 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
-ARCHITECTURE_AND_PRODUCT_ROADMAP.md
-HACKATHON_CONTEXT.md
-DASHBOARD_PLAN.md
+
+# Exclude all .md files except README.md
+*.md
+!README.md

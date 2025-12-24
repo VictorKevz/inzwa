@@ -1,0 +1,492 @@
+[
+    {
+        "productId": "p_001",
+        "productName": "DunkMaster Elite 5",
+        "category": "Basketball Shoes",
+        "price": 99,
+        "currency": "EUR",
+        "description": "Protect your ankles and boost your performance with these premium high-top basketball shoes. The superior ankle support wraps around your foot to prevent injuries during quick movements and jumps, while the responsive foam cushioning gives you that extra spring in your step. Feel confident making explosive jumps and sharp cuts on the court, knowing your feet are well-protected and supported.",
+        "tags": [
+            "high-top",
+            "supportive",
+            "cushioned"
+        ],
+        "images": [
+            "https://i.imgur.com/wm5sNUk.png",
+            "https://i.imgur.com/4az6yNK.png",
+            "https://i.imgur.com/bvExCXV.png"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_001_v1",
+                "size": "44",
+                "color": "Midnight Blue",
+                "stock": 12,
+                "sku": "DM-EL-44-BLU"
+            },
+            {
+                "variantId": "p_001_v2",
+                "size": "45",
+                "color": "Midnight Blue",
+                "stock": 8,
+                "sku": "DM-EL-45-BLU"
+            }
+        ],
+        "updatedAt": "2025-05-10T14:30:00Z"
+    },
+    {
+        "productId": "p_002",
+        "productName": "AeroGlide Marathon Pro",
+        "category": "Running Shoes",
+        "price": 85,
+        "currency": "EUR",
+        "description": "Run longer and faster with less effort. These ultra-lightweight running shoes feel like you're barely wearing anything, reducing fatigue on your feet and legs. The carbon fiber plating technology propels you forward with each step, returning energy that would normally be lost. Perfect for marathon training or long-distance runs where every ounce of energy matters—you'll finish stronger and feel less exhausted.",
+        "tags": [
+            "lightweight",
+            "marathon",
+            "carbon-plate"
+        ],
+        "images": [
+            "https://i.imgur.com/0RHY15w.png",
+            "https://i.imgur.com/UShyDJI.png",
+            "https://i.imgur.com/vLWMNS8.png"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_002_v1",
+                "size": "42",
+                "color": "Neon Green",
+                "stock": 20,
+                "sku": "AG-MP-42-GRN"
+            },
+            {
+                "variantId": "p_002_v2",
+                "size": "43",
+                "color": "Neon Green",
+                "stock": 15,
+                "sku": "AG-MP-43-GRN"
+            }
+        ],
+        "updatedAt": "2025-06-12T09:15:00Z"
+    },
+    {
+        "productId": "p_003",
+        "productName": "Urban Drift Classic",
+        "category": "Casual Sneakers",
+        "price": 85,
+        "currency": "EUR",
+        "description": "The perfect everyday sneaker that goes with everything in your wardrobe. This timeless low-profile design never goes out of style, while the durable canvas upper stands up to daily wear and tear. The vulcanized rubber sole provides reliable grip and comfort whether you're walking to work, running errands, or just hanging out. Built to last, these sneakers become more comfortable the more you wear them.",
+        "tags": [
+            "lifestyle",
+            "classic",
+            "canvas"
+        ],
+        "images": [
+            "https://i.imgur.com/3JbBLJG.png",
+            "https://i.imgur.com/8RpRiFf.png",
+            "https://i.imgur.com/EAoizFI.png"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_003_v1",
+                "size": "41",
+                "color": "Cloud White",
+                "stock": 50,
+                "sku": "UD-CL-41-WHT"
+            },
+            {
+                "variantId": "p_003_v2",
+                "size": "41",
+                "color": "Slate Grey",
+                "stock": 35,
+                "sku": "UD-CL-41-GRY"
+            }
+        ],
+        "updatedAt": "2025-07-01T11:00:00Z"
+    },
+    {
+        "productId": "p_008",
+        "productName": "Vibrant Runners Sneakers",
+        "category": "Running Shoes",
+        "price": 27,
+        "currency": "EUR",
+        "description": "Stand out from the crowd with these vibrant sneakers that combine eye-catching orange and blue colors. Beyond their bold style, these shoes are designed for real comfort—perfect for long walks, casual runs, or just looking great while staying comfortable all day. The striking color combination makes a statement, while the thoughtful design ensures your feet feel good whether you're on your feet for hours or just running quick errands.",
+        "tags": [
+            "vibrant",
+            "runners",
+            "orange"
+        ],
+        "images": [
+            "https://i.imgur.com/hKcMNJs.jpeg",
+            "https://i.imgur.com/NYToymX.jpeg",
+            "https://i.imgur.com/HiiapCt.jpeg"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_008_v1",
+                "size": "42",
+                "color": "Orange/Blue",
+                "stock": 8,
+                "sku": "SH-38-42-ORB"
+            }
+        ],
+        "updatedAt": "2025-12-20T09:51:42.000Z"
+    },
+    {
+        "productId": "p_009",
+        "productName": "Vibrant Pink Classic Sneakers",
+        "category": "Casual Sneakers",
+        "price": 84,
+        "currency": "EUR",
+        "description": "Add a pop of color to your wardrobe with these vibrant pink classic sneakers. The bold pink hue makes a fun, confident statement while the iconic white detailing keeps them versatile enough to pair with almost anything. Whether you're dressing up a casual outfit or adding personality to your everyday look, these sneakers bring energy and style. Comfortable enough for all-day wear, they're perfect for anyone who wants to express themselves through their footwear.",
+        "tags": [
+            "pink",
+            "sneakers",
+            "classic"
+        ],
+        "images": [
+            "https://i.imgur.com/mcW42Gi.jpeg",
+            "https://i.imgur.com/mhn7qsF.jpeg",
+            "https://i.imgur.com/F8vhnFJ.jpeg"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_009_v1",
+                "size": "44",
+                "color": "Vibrant Pink",
+                "stock": 12,
+                "sku": "SH-39-44-PNK"
+            }
+        ],
+        "updatedAt": "2025-12-20T09:51:42.000Z"
+    },
+    {
+        "productId": "p_007",
+        "productName": "Aurora Luxe",
+        "category": "Limited Edition / Collectors",
+        "price": 68,
+        "currency": "EUR",
+        "description": "Experience the bold style of Aurora Luxe—designed for sneaker enthusiasts and collectors alike. This limited edition high-top features a futuristic silver finish with luxurious gold detailing, making it the perfect statement piece whether you're showcasing your collection or elevating your everyday look. Step confidently into any setting with shoes that are as unique and innovative as you are.",
+        "tags": [
+            "silver",
+            "gold",
+            "futuristic",
+            "high-top"
+        ],
+        "images": [
+            "https://i.imgur.com/npLfCGq.jpeg",
+            "https://i.imgur.com/vYim3gj.jpeg",
+            "https://i.imgur.com/HxuHwBO.jpeg"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_007_v1",
+                "size": "45",
+                "color": "Silver/Gold",
+                "stock": 7,
+                "sku": "SH-40-45-SGO"
+            }
+        ],
+        "updatedAt": "2025-12-20T09:51:42.000Z"
+    },
+    {
+        "productId": "p_004",
+        "productName": "Titan Lifter X1",
+        "category": "Training / Gym Shoes",
+        "price": 100,
+        "currency": "EUR",
+        "description": "Lift heavier and safer with confidence. These weightlifting shoes are designed to keep you stable and grounded during heavy lifts. The wide heel base creates a solid foundation that prevents wobbling or tipping, while the secure midfoot strap locks your foot in place so you can focus on your form. Feel the difference when squatting, deadlifting, or doing overhead presses—your feet stay planted, giving you the stability to push your limits safely.",
+        "tags": [
+            "weightlifting",
+            "stability",
+            "training"
+        ],
+        "images": [
+            "https://i.imgur.com/F1FJc3O.png",
+            "https://i.imgur.com/QVjFyQ3.png",
+            "https://i.imgur.com/AzDUDr9.png"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_004_v1",
+                "size": "43",
+                "color": "Matte Black",
+                "stock": 10,
+                "sku": "TL-X1-43-BLK"
+            },
+            {
+                "variantId": "p_004_v2",
+                "size": "44",
+                "color": "Matte Black",
+                "stock": 0,
+                "sku": "TL-X1-44-BLK"
+            }
+        ],
+        "updatedAt": "2025-08-15T16:45:00Z"
+    },
+    {
+        "productId": "p_005",
+        "productName": "Nebula Prism Retro",
+        "category": "Limited Edition / Collectors",
+        "price": 199,
+        "currency": "EUR",
+        "description": "A limited-edition release designed for collectors and enthusiasts. Features iridescent prism paneling that shifts under light, premium retro construction, and individually numbered insoles to guarantee authenticity. Produced in strictly limited quantities, this model is intended as both a wearable statement and a long-term collector’s asset.",
+        "tags": [
+            "exclusive",
+            "iridescent",
+            "retro"
+        ],
+        "images": [
+            "https://i.imgur.com/wRcKrTg.png",
+            "https://i.imgur.com/egls98L.png"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_005_v1",
+                "size": "42",
+                "color": "Multi-Prism",
+                "stock": 3,
+                "sku": "NP-RE-42-MLT"
+            },
+            {
+                "variantId": "p_005_v2",
+                "size": "44",
+                "color": "Multi-Prism",
+                "stock": 2,
+                "sku": "NP-RE-44-MLT"
+            }
+        ],
+        "updatedAt": "2025-11-20T10:00:00Z"
+    },
+    {
+        "productId": "p_006",
+        "productName": "CourtKing Low",
+        "category": "Basketball Shoes",
+        "price": 55,
+        "currency": "EUR",
+        "description": "Move freely and cut quickly without restrictions. These low-cut basketball sneakers give you the ankle mobility you need for explosive movements while the high-traction grip keeps you connected to the court. Make sharp cuts, change direction instantly, and stop on a dime without worrying about slipping. Perfect for guards and players who rely on speed and agility—feel the court beneath you and move with confidence.",
+        "tags": [
+            "low-cut",
+            "traction",
+            "court"
+        ],
+        "images": [
+            "https://i.imgur.com/nPef6ke.png",
+            "https://i.imgur.com/MDnZsjE.png"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_006_v1",
+                "size": "40",
+                "color": "Electric Red",
+                "stock": 14,
+                "sku": "CK-LO-40-RED"
+            },
+            {
+                "variantId": "p_006_v2",
+                "size": "41",
+                "color": "Electric Red",
+                "stock": 22,
+                "sku": "CK-LO-41-RED"
+            }
+        ],
+        "updatedAt": "2025-04-18T13:20:00Z"
+    },
+    {
+        "productId": "p_010",
+        "productName": "Navy Blue Baseball Cap",
+        "category": "Clothes",
+        "price": 61,
+        "currency": "EUR",
+        "description": "Complete your look with this sleek navy blue baseball cap that works for any casual occasion. The durable material means it will hold its shape and color through countless wears, washes, and sunny days. Whether you're heading to a game, running errands, or just want to shield your eyes from the sun, this cap adds a polished touch to your outfit while keeping you comfortable and protected.",
+        "tags": [
+            "navy",
+            "baseball",
+            "cap"
+        ],
+        "images": [
+            "https://i.imgur.com/R3iobJA.jpeg",
+            "https://i.imgur.com/Wv2KTsf.jpeg",
+            "https://i.imgur.com/76HAxcA.jpeg"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_010_v1",
+                "size": "One Size",
+                "color": "Navy Blue",
+                "stock": 50,
+                "sku": "CL-09-OS-NAV"
+            }
+        ],
+        "updatedAt": "2025-12-20T09:51:42.000Z"
+    },
+    {
+        "productId": "p_011",
+        "productName": "Blue Baseball Cap",
+        "category": "Baseball Caps",
+        "price": 26,
+        "currency": "EUR",
+        "description": "Top off your casual look with this classic blue baseball cap that combines style with lasting comfort. Made from high-quality materials that feel soft against your skin and maintain their shape over time. The versatile blue color complements any outfit, while the breathable construction keeps you cool even on warm days. Whether you're heading to a game, going for a walk, or just want to add a finishing touch to your outfit, this cap delivers both style and comfort.",
+        "tags": [
+            "blue",
+            "baseball",
+            "cap"
+        ],
+        "images": [
+            "https://i.imgur.com/wXuQ7bm.jpeg",
+            "https://i.imgur.com/BZrIEmb.jpeg",
+            "https://i.imgur.com/KcT6BE0.jpeg"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_011_v1",
+                "size": "One Size",
+                "color": "Blue",
+                "stock": 30,
+                "sku": "CL-10-OS-BLU"
+            }
+        ],
+        "updatedAt": "2025-12-20T09:51:42.000Z"
+    },
+    {
+        "productId": "p_012",
+        "productName": "Red Baseball Cap",
+        "category": "Baseball Caps",
+        "price": 35,
+        "currency": "EUR",
+        "description": "Add a bold touch to your casual style with this timeless red baseball cap. The vibrant red color makes a statement while the durable fabric construction ensures it stays looking great season after season. Perfect for sunny days when you need sun protection, or just to add a pop of color to your outfit. The classic design never goes out of style, making it a versatile addition to your wardrobe that you'll reach for again and again.",
+        "tags": [
+            "red",
+            "baseball",
+            "cap"
+        ],
+        "images": [
+            "https://i.imgur.com/cBuLvBi.jpeg",
+            "https://i.imgur.com/N1GkCIR.jpeg",
+            "https://i.imgur.com/kKc9A5p.jpeg"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_012_v1",
+                "size": "One Size",
+                "color": "Red",
+                "stock": 25,
+                "sku": "CL-11-OS-RED"
+            }
+        ],
+        "updatedAt": "2025-12-20T09:51:42.000Z"
+    },
+    {
+        "productId": "p_013",
+        "productName": "Black Baseball Cap",
+        "category": "Baseball Caps",
+        "price": 58,
+        "currency": "EUR",
+        "description": "The perfect versatile cap for any occasion. This timeless black baseball cap goes with everything in your wardrobe, from workout clothes to casual weekend outfits. Made with high-quality, breathable fabric that keeps your head cool and comfortable, even during active days. The classic black color never goes out of style, making this a go-to accessory you'll reach for again and again. Whether you need sun protection, want to cover up a bad hair day, or just complete your look, this cap has you covered.",
+        "tags": [
+            "black",
+            "baseball",
+            "cap"
+        ],
+        "images": [
+            "https://i.imgur.com/KeqG6r4.jpeg",
+            "https://i.imgur.com/xGQOw3p.jpeg",
+            "https://i.imgur.com/oO5OUjb.jpeg"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_013_v1",
+                "size": "One Size",
+                "color": "Black",
+                "stock": 40,
+                "sku": "CL-12-OS-BLK"
+            }
+        ],
+        "updatedAt": "2025-12-20T09:51:42.000Z"
+    },
+    {
+        "productId": "p_014",
+        "productName": "CloudStep Daily",
+        "category": "Running Shoes",
+        "price": 110,
+        "currency": "EUR",
+        "description": "Experience all-day comfort and reliable support with the CloudStep Daily. Designed for runners who value cushioning and breathability, this lightweight shoe features a soft mesh upper that keeps your feet cool and a responsive foam midsole that absorbs shock. Perfect for daily jogging, long walks, or recovery days, the CloudStep Daily helps reduce fatigue, making it a great choice for both new and seasoned runners seeking dependable performance and everyday comfort.",
+        "tags": [
+            "neutral",
+            "comfort",
+            "mesh"
+        ],
+        "images": [
+            "https://i.imgur.com/u9EZbBU.png",
+            "https://i.imgur.com/lflumPr.png",
+            "https://i.imgur.com/XvAVSUZ.png"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_014_v1",
+                "size": "38",
+                "color": "Teal",
+                "stock": 30,
+                "sku": "CS-DA-38-TEA"
+            },
+            {
+                "variantId": "p_014_v2",
+                "size": "39",
+                "color": "Teal",
+                "stock": 25,
+                "sku": "CS-DA-39-TEA"
+            }
+        ],
+        "updatedAt": "2025-03-05T08:50:00Z"
+    },
+    {
+        "productId": "p_015",
+        "productName": "Metro Suede Lite",
+        "category": "Casual Sneakers",
+        "price": 95,
+        "currency": "EUR",
+        "description": "Elevate your everyday style with these sleek suede lifestyle sneakers. The minimalist aesthetic means they pair effortlessly with everything from jeans to chinos, while the premium suede material adds a touch of sophistication. The cushioned cork insole molds to your foot over time, creating a custom fit that gets more comfortable with each wear. Perfect for those who appreciate quality materials and timeless design—these sneakers look great and feel even better.",
+        "tags": [
+            "suede",
+            "minimalist",
+            "lifestyle"
+        ],
+        "images": [
+            "https://i.imgur.com/6BuP1E0.png",
+            "https://i.imgur.com/iqcC789.png",
+            "https://i.imgur.com/lcRWGIZ.png"
+        ],
+        "inStock": true,
+        "variants": [
+            {
+                "variantId": "p_015_v1",
+                "size": "43",
+                "color": "Tan",
+                "stock": 18,
+                "sku": "MS-LT-43-TAN"
+            },
+            {
+                "variantId": "p_015_v2",
+                "size": "44",
+                "color": "Olive",
+                "stock": 12,
+                "sku": "MS-LT-44-OLV"
+            }
+        ],
+        "updatedAt": "2025-05-22T17:10:00Z"
+    }
+]
