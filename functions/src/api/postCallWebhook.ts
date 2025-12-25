@@ -56,10 +56,35 @@ function validateWebhookSignature(
  * Receives post-call transcription webhooks from ElevenLabs,
  * analyzes user utterances with Vertex AI, and stores structured intents in Firestore.
  */
+// Get allowed CORS origins from environment or use default
+function getAllowedOrigins(): string[] {
+  const envOrigins = process.env.ALLOWED_CORS_ORIGINS;
+  if (envOrigins) {
+    return envOrigins.split(",").map((origin) => origin.trim());
+  }
+  // Default: allow ElevenLabs and common localhost ports for development
+  return [
+    "https://api.elevenlabs.io",
+    "https://elevenlabs.io",
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://localhost:3002",
+  ];
+}
+
 exports.postCallWebhook = functions.https.onRequest(
   async (req: any, res: any) => {
+    const allowedOrigins = getAllowedOrigins();
+    const origin = req.headers.origin;
+
     if (req.method === "OPTIONS") {
-      res.set("Access-Control-Allow-Origin", "*");
+      // Only allow CORS from whitelisted origins
+      if (origin && allowedOrigins.includes(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+      } else if (allowedOrigins.includes("*")) {
+        // Fallback to wildcard only if explicitly configured
+        res.set("Access-Control-Allow-Origin", "*");
+      }
       res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
       res.set(
         "Access-Control-Allow-Headers",
@@ -79,7 +104,16 @@ exports.postCallWebhook = functions.https.onRequest(
         req.headers["ElevenLabs-Signature"];
       const timestamp = req.headers["x-elevenlabs-timestamp"];
 
-      if (webhookSecret && signature && timestamp) {
+      // Enforce signature validation if secret is configured (production)
+      if (webhookSecret) {
+        if (!signature || !timestamp) {
+          console.warn("[postCallWebhook] Missing webhook signature or timestamp");
+          return res.status(401).json({
+            error: "Unauthorized",
+            message: "Webhook signature required",
+          });
+        }
+
         const rawBody =
           (req as any).rawBody?.toString() || JSON.stringify(req.body);
         const isValid = validateWebhookSignature(
@@ -90,7 +124,14 @@ exports.postCallWebhook = functions.https.onRequest(
         );
         if (!isValid) {
           console.warn("[postCallWebhook] Invalid webhook signature");
+          return res.status(401).json({
+            error: "Unauthorized",
+            message: "Invalid webhook signature",
+          });
         }
+      } else {
+        // Allow local development without signature validation
+        console.warn("[postCallWebhook] Running without webhook signature validation (local dev mode)");
       }
 
       const payload: ElevenLabsWebhookPayload = req.body;
@@ -248,6 +289,11 @@ exports.postCallWebhook = functions.https.onRequest(
         intentIds.push(intentId);
       }
 
+      // Set CORS header for successful response
+      if (origin && allowedOrigins.includes(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+      }
+
       res.status(200).json({
         message: "Transcript processed successfully",
         conversationId: conversation_id,
@@ -257,9 +303,19 @@ exports.postCallWebhook = functions.https.onRequest(
       });
     } catch (err) {
       console.error("[postCallWebhook] Error:", err);
-      res.status(200).json({
+      
+      // Set CORS header for error response
+      if (origin && allowedOrigins.includes(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+      }
+
+      // Prevent information leakage in production
+      const isDevelopment = process.env.NODE_ENV === "development" || !process.env.K_SERVICE;
+      res.status(500).json({
         error: "Processing failed",
-        message: err instanceof Error ? err.message : "Unknown error",
+        message: isDevelopment
+          ? (err instanceof Error ? err.message : "Unknown error")
+          : "Internal server error",
       });
     }
   }

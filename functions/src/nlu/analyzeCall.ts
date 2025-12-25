@@ -8,8 +8,14 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
+// Get project ID from environment variable, fallback to default for backward compatibility
+const projectId =
+  process.env.GCP_PROJECT_ID ||
+  process.env.FIREBASE_PROJECT_ID ||
+  "inzwa-hackathon";
+
 const vertexAI = new VertexAI({
-  project: "inzwa-hackathon",
+  project: projectId,
   location: "us-central1",
 });
 

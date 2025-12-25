@@ -195,7 +195,11 @@ dashboard/ (visualize insights)
 ## Environment Variables
 
 ### `functions/.env`
-- `GOOGLE_APPLICATION_CREDENTIALS` (optional, for local dev only)
+- `GOOGLE_APPLICATION_CREDENTIALS` (optional, for local dev only) - Path to service account JSON file
+- `GCP_PROJECT_ID` or `FIREBASE_PROJECT_ID` (optional) - Google Cloud project ID (defaults to "inzwa-hackathon")
+- `ELEVENLABS_WEBHOOK_SECRET` (recommended for production) - Secret key for validating ElevenLabs webhook signatures
+- `RECOMMENDATION_API_KEY` (recommended for production) - API key for authenticating recommendation endpoint requests
+- `ALLOWED_CORS_ORIGINS` (optional) - Comma-separated list of allowed CORS origins (defaults to ElevenLabs domains and localhost)
 - Other Vertex AI / Firebase config as needed
 
 ### `marketing/.env.local`
@@ -206,7 +210,13 @@ dashboard/ (visualize insights)
 
 After deploying functions, you'll get deployment URLs from the Firebase CLI output. Use these URLs in your ElevenLabs webhook configuration.
 
-**Security Note:** These endpoints are publicly accessible. The `postCallWebhook` endpoint validates ElevenLabs webhook signatures when configured. Consider implementing additional rate limiting and authentication for production use.
+**Security Features:**
+- **Webhook Signature Validation**: The `postCallWebhook` endpoint validates ElevenLabs webhook signatures when `ELEVENLABS_WEBHOOK_SECRET` is configured. Invalid signatures are rejected with 401 Unauthorized.
+- **API Key Authentication**: The `realTimeRecommendation` endpoint requires an API key when `RECOMMENDATION_API_KEY` is set. Send the key in the `X-API-Key` header.
+- **CORS Protection**: Both endpoints restrict CORS to whitelisted origins. Configure via `ALLOWED_CORS_ORIGINS` environment variable.
+- **Error Handling**: Production error messages are sanitized to prevent information leakage. Detailed errors are only shown in development mode.
+
+**Security Note:** For production deployments, always configure `ELEVENLABS_WEBHOOK_SECRET` and `RECOMMENDATION_API_KEY`. Consider implementing additional rate limiting for high-traffic scenarios.
 
 ## License
 

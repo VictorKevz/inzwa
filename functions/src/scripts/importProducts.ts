@@ -12,8 +12,11 @@ if (fs.existsSync(envPath)) {
 }
 
 if (!admin.apps.length) {
+  // Get project ID from environment variable, fallback to default for backward compatibility
+  const projectId = process.env.GCP_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || "inzwa-hackathon";
+  
   let config: admin.AppOptions = {
-    projectId: "inzwa-hackathon",
+    projectId: projectId,
   };
 
   const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;

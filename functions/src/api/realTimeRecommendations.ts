@@ -265,14 +265,66 @@ function filterProducts(
  */
 export const realTimeRecommendation = functions.https.onRequest(
   async (req: any, res: any) => {
+    // Handle CORS preflight
+    if (req.method === "OPTIONS") {
+      const allowedOrigins = process.env.ALLOWED_CORS_ORIGINS?.split(",").map((o) => o.trim()) || [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+      ];
+      const origin = req.headers.origin;
+      if (origin && allowedOrigins.includes(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+      }
+      res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+      res.set("Access-Control-Allow-Headers", "Content-Type, X-API-Key");
+      return res.status(204).send("");
+    }
+
     if (req.method !== "POST")
       return res.status(405).send("Method Not Allowed");
 
+    // API Key authentication (optional for local dev, required in production)
+    const apiKey = req.headers["x-api-key"] || req.headers["X-API-Key"];
+    const requiredApiKey = process.env.RECOMMENDATION_API_KEY;
+    
+    if (requiredApiKey) {
+      if (!apiKey || apiKey !== requiredApiKey) {
+        return res.status(401).json({
+          error: "Unauthorized",
+          message: "Valid API key required",
+        });
+      }
+    } else {
+      // Allow local development without API key
+      console.warn("[realTimeRecommendation] Running without API key validation (local dev mode)");
+    }
+
     const { merchantId, rawIntent, limit } = req.body as RecommendationRequest;
-    if (!merchantId || !rawIntent)
-      return res
-        .status(400)
-        .send("Missing fields: merchantId and rawIntent required");
+    
+    // Enhanced input validation
+    if (!merchantId || !rawIntent) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Missing required fields: merchantId and rawIntent",
+      });
+    }
+
+    // Validate merchantId format (optional but recommended)
+    if (typeof merchantId !== "string" || merchantId.length > 100) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid merchantId format",
+      });
+    }
+
+    // Validate rawIntent length
+    if (typeof rawIntent !== "string" || rawIntent.length > 10000) {
+      return res.status(400).json({
+        error: "Bad Request",
+        message: "Invalid rawIntent: must be a string under 10000 characters",
+      });
+    }
 
 
     try {
@@ -410,15 +462,42 @@ export const realTimeRecommendation = functions.https.onRequest(
         confidence: extractedIntent.confidence,
       };
 
+      // Set CORS header for successful response
+      const allowedOrigins = process.env.ALLOWED_CORS_ORIGINS?.split(",").map((o) => o.trim()) || [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+      ];
+      const origin = req.headers.origin;
+      if (origin && allowedOrigins.includes(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+      }
+
       res.status(200).json(response);
     } catch (error) {
       console.error(
         "[Recommendation] Error in recommendation pipeline:",
         error
       );
+
+      // Set CORS header for error response
+      const allowedOrigins = process.env.ALLOWED_CORS_ORIGINS?.split(",").map((o) => o.trim()) || [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+      ];
+      const origin = req.headers.origin;
+      if (origin && allowedOrigins.includes(origin)) {
+        res.set("Access-Control-Allow-Origin", origin);
+      }
+
+      // Prevent information leakage in production
+      const isDevelopment = process.env.NODE_ENV === "development" || !process.env.K_SERVICE;
       res.status(500).json({
         error: "Failed to generate recommendations",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: isDevelopment
+          ? (error instanceof Error ? error.message : "Unknown error")
+          : "Internal server error",
       });
     }
   }
