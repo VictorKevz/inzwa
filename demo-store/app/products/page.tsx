@@ -1,12 +1,13 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useProducts } from "../../contexts/ProductsContext";
 import ProductCard from "../../components/ProductCard";
 import { useRecommendations } from "../../contexts/RecommendationsContext";
 import ProductPreview from "../../components/ProductPreview";
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
   const { products: allProducts, getProductsByCategory, loading, error } = useProducts();
@@ -72,5 +73,17 @@ export default function ProductsPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-black text-lg">Loading...</div>
+      </div>
+    }>
+      <ProductsContent />
+    </Suspense>
   );
 }
