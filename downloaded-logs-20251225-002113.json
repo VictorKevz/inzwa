@@ -1,0 +1,253 @@
+[
+  {
+    "insertId": "694c64a30002a539a8ba51ff",
+    "httpRequest": {
+      "requestMethod": "POST",
+      "requestUrl": "https://postcallwebhook-ctmigyxh3q-uc.a.run.app/",
+      "requestSize": "3526",
+      "status": 200,
+      "responseSize": "284",
+      "userAgent": "curl/8.7.1",
+      "remoteIp": "80.75.104.190",
+      "serverIp": "34.143.72.2",
+      "latency": "27.836715198s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "postcallwebhook",
+        "service_name": "postcallwebhook",
+        "project_id": "inzwa-hackathon",
+        "revision_name": "postcallwebhook-00034-gej",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-12-24T22:09:11.040016Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-drz-cloudfunctions-id": "postcallwebhook",
+      "goog-managed-by": "cloudfunctions",
+      "firebase-functions-hash": "0af9f0921c23fcbf0048d2de2f13ed70103855ee",
+      "instanceId": "0007e26d68718fb72cfd4cec658dcadd45c866461c7cf8759d2efc42ec21398384d79006127441c7236a5cda329c4456c40eee45fe2529bbf15f61e2146db97929fd51446f57743038d008162fbcf7",
+      "goog-drz-cloudfunctions-location": "us-central1"
+    },
+    "logName": "projects/inzwa-hackathon/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/inzwa-hackathon/traces/f9f168111d16ef2517022b50d8c0399b",
+    "receiveTimestamp": "2025-12-24T22:09:39.177982183Z",
+    "spanId": "5c1215b79b28a379",
+    "traceSampled": true
+  },
+  {
+    "textPayload": "Starting new instance. Reason: AUTOSCALING - Instance started due to configured scaling factors (e.g. CPU utilization, request throughput, etc.) or no existing capacity for current traffic.",
+    "insertId": "694c64870000e0df8f495b9b",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "postcallwebhook-00034-gej",
+        "service_name": "postcallwebhook",
+        "location": "us-central1",
+        "configuration_name": "postcallwebhook",
+        "project_id": "inzwa-hackathon"
+      }
+    },
+    "timestamp": "2025-12-24T22:09:11.057567Z",
+    "severity": "INFO",
+    "labels": {
+      "scaling_reason": "AUTOSCALING",
+      "firebase-functions-hash": "0af9f0921c23fcbf0048d2de2f13ed70103855ee",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-managed-by": "cloudfunctions",
+      "goog-drz-cloudfunctions-id": "postcallwebhook",
+      "instanceId": "0007e26d68718fb72cfd4cec658dcadd45c866461c7cf8759d2efc42ec21398384d79006127441c7236a5cda329c4456c40eee45fe2529bbf15f61e2146db97929fd51446f57743038d008162fbcf7"
+    },
+    "logName": "projects/inzwa-hackathon/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-12-24T22:09:11.063290053Z"
+  },
+  {
+    "textPayload": "[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }",
+    "insertId": "694c64880008c132f522f8fb",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "postcallwebhook",
+        "service_name": "postcallwebhook",
+        "revision_name": "postcallwebhook-00034-gej",
+        "location": "us-central1",
+        "project_id": "inzwa-hackathon"
+      }
+    },
+    "timestamp": "2025-12-24T22:09:12.573746Z",
+    "labels": {
+      "firebase-functions-hash": "0af9f0921c23fcbf0048d2de2f13ed70103855ee",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-drz-cloudfunctions-id": "postcallwebhook",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-24-full/runtimes/nodejs24:nodejs24_20251207_24_11_0_RC00",
+      "instanceId": "0007e26d68718fb72cfd4cec658dcadd45c866461c7cf8759d2efc42ec21398384d79006127441c7236a5cda329c4456c40eee45fe2529bbf15f61e2146db97929fd51446f57743038d008162fbcf7",
+      "goog-managed-by": "cloudfunctions"
+    },
+    "logName": "projects/inzwa-hackathon/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-12-24T22:09:12.579594587Z"
+  },
+  {
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"worker\" on port 8080.",
+    "insertId": "694c6489000dd64445b38b6c",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "postcallwebhook-00034-gej",
+        "location": "us-central1",
+        "configuration_name": "postcallwebhook",
+        "service_name": "postcallwebhook",
+        "project_id": "inzwa-hackathon"
+      }
+    },
+    "timestamp": "2025-12-24T22:09:13.906820Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-drz-cloudfunctions-id": "postcallwebhook",
+      "goog-managed-by": "cloudfunctions",
+      "instanceId": "0007e26d68718fb72cfd4cec658dcadd45c866461c7cf8759d2efc42ec21398384d79006127441c7236a5cda329c4456c40eee45fe2529bbf15f61e2146db97929fd51446f57743038d008162fbcf7",
+      "firebase-functions-hash": "0af9f0921c23fcbf0048d2de2f13ed70103855ee",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-24-full/runtimes/nodejs24:nodejs24_20251207_24_11_0_RC00",
+      "goog-drz-cloudfunctions-location": "us-central1"
+    },
+    "logName": "projects/inzwa-hackathon/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-12-24T22:09:14.061291167Z"
+  },
+  {
+    "textPayload": "[analyzeCall] Response debug: {\n  \"hasResponse\": true,\n  \"hasCandidates\": true,\n  \"candidatesLength\": 1,\n  \"finishReason\": \"MAX_TOKENS\",\n  \"hasContent\": true,\n  \"hasParts\": true,\n  \"partsLength\": 1\n}\n",
+    "insertId": "694c64a20006b9d0d20fc68a",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "postcallwebhook-00034-gej",
+        "service_name": "postcallwebhook",
+        "configuration_name": "postcallwebhook",
+        "location": "us-central1",
+        "project_id": "inzwa-hackathon"
+      }
+    },
+    "timestamp": "2025-12-24T22:09:38.440784Z",
+    "labels": {
+      "firebase-functions-hash": "0af9f0921c23fcbf0048d2de2f13ed70103855ee",
+      "execution_id": "kkgd8hkrm9bj",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-24-full/runtimes/nodejs24:nodejs24_20251207_24_11_0_RC00",
+      "goog-drz-cloudfunctions-id": "postcallwebhook",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "instanceId": "0007e26d68718fb72cfd4cec658dcadd45c866461c7cf8759d2efc42ec21398384d79006127441c7236a5cda329c4456c40eee45fe2529bbf15f61e2146db97929fd51446f57743038d008162fbcf7",
+      "goog-managed-by": "cloudfunctions"
+    },
+    "logName": "projects/inzwa-hackathon/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-12-24T22:09:38.446357189Z",
+    "spanId": "6634389079396492153"
+  },
+  {
+    "textPayload": "[analyzeCall] Finish reason indicates issue: MAX_TOKENS\n",
+    "insertId": "694c64a20006bac5f437952c",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "inzwa-hackathon",
+        "service_name": "postcallwebhook",
+        "location": "us-central1",
+        "configuration_name": "postcallwebhook",
+        "revision_name": "postcallwebhook-00034-gej"
+      }
+    },
+    "timestamp": "2025-12-24T22:09:38.441029Z",
+    "labels": {
+      "execution_id": "kkgd8hkrm9bj",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-24-full/runtimes/nodejs24:nodejs24_20251207_24_11_0_RC00",
+      "goog-drz-cloudfunctions-id": "postcallwebhook",
+      "instanceId": "0007e26d68718fb72cfd4cec658dcadd45c866461c7cf8759d2efc42ec21398384d79006127441c7236a5cda329c4456c40eee45fe2529bbf15f61e2146db97929fd51446f57743038d008162fbcf7",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-managed-by": "cloudfunctions",
+      "firebase-functions-hash": "0af9f0921c23fcbf0048d2de2f13ed70103855ee"
+    },
+    "logName": "projects/inzwa-hackathon/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-24T22:09:38.446424438Z",
+    "spanId": "6634389079396492153"
+  },
+  {
+    "textPayload": "[analyzeCall] Received text response (first 500 chars): ```json\n{\n  \"intentType\": \"buy\",\n  \"normalizedIntent\": \"Customer wanted to buy CourtKing Low basketball shoes in size 41, but ultimately declined to proceed with any purchase after 'Airforce 1' was found to be unavailable.\",\n  \"category\": \"Basketball Shoes\",\n  \"productMentions\": [\n    \"CourtKing Low\",\n    \"Airforce 1\"\n  ],\n  \"sentiment\": \"neutral\",\n  \"price_min\": 55,\n  \"price_max\": 55,\n  \"variantAttributes\": {\n    \"size\": \"41\",\n    \"color\": \"electric red\"\n  },\n  \"recommendationShown\": [\n    \"Dun\n",
+    "insertId": "694c64a20006bb61fbc5593b",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "postcallwebhook",
+        "location": "us-central1",
+        "service_name": "postcallwebhook",
+        "revision_name": "postcallwebhook-00034-gej",
+        "project_id": "inzwa-hackathon"
+      }
+    },
+    "timestamp": "2025-12-24T22:09:38.441185Z",
+    "labels": {
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-drz-cloudfunctions-id": "postcallwebhook",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-24-full/runtimes/nodejs24:nodejs24_20251207_24_11_0_RC00",
+      "instanceId": "0007e26d68718fb72cfd4cec658dcadd45c866461c7cf8759d2efc42ec21398384d79006127441c7236a5cda329c4456c40eee45fe2529bbf15f61e2146db97929fd51446f57743038d008162fbcf7",
+      "firebase-functions-hash": "0af9f0921c23fcbf0048d2de2f13ed70103855ee",
+      "goog-managed-by": "cloudfunctions",
+      "execution_id": "kkgd8hkrm9bj"
+    },
+    "logName": "projects/inzwa-hackathon/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-12-24T22:09:38.780067691Z",
+    "spanId": "6634389079396492153"
+  },
+  {
+    "textPayload": "[analyzeCall] Failed to parse JSON: Expected ',' or '}' after property value in JSON at position 455 (line 15 column 4). Extracted text (first 2000 chars): {\n  \"intentType\": \"buy\",\n  \"normalizedIntent\": \"Customer wanted to buy CourtKing Low basketball shoes in size 41, but ultimately declined to proceed with any purchase after 'Airforce 1' was found to be unavailable.\",\n  \"category\": \"Basketball Shoes\",\n  \"productMentions\": [\n    \"CourtKing Low\",\n    \"Airforce 1\"\n  ],\n  \"sentiment\": \"neutral\",\n  \"price_min\": 55,\n  \"price_max\": 55,\n  \"variantAttributes\": {\n    \"size\": \"41\",\n    \"color\": \"electric red\"\n  }\n",
+    "insertId": "694c64a20006bc835a1a8d1c",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "postcallwebhook",
+        "location": "us-central1",
+        "configuration_name": "postcallwebhook",
+        "project_id": "inzwa-hackathon",
+        "revision_name": "postcallwebhook-00034-gej"
+      }
+    },
+    "timestamp": "2025-12-24T22:09:38.441475Z",
+    "labels": {
+      "firebase-functions-hash": "0af9f0921c23fcbf0048d2de2f13ed70103855ee",
+      "goog-drz-cloudfunctions-id": "postcallwebhook",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-24-full/runtimes/nodejs24:nodejs24_20251207_24_11_0_RC00",
+      "execution_id": "kkgd8hkrm9bj",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "instanceId": "0007e26d68718fb72cfd4cec658dcadd45c866461c7cf8759d2efc42ec21398384d79006127441c7236a5cda329c4456c40eee45fe2529bbf15f61e2146db97929fd51446f57743038d008162fbcf7",
+      "goog-managed-by": "cloudfunctions"
+    },
+    "logName": "projects/inzwa-hackathon/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-24T22:09:38.779802900Z",
+    "spanId": "6634389079396492153"
+  },
+  {
+    "textPayload": "[analyzeCall] Error: Failed to parse JSON: Expected ',' or '}' after property value in JSON at position 455 (line 15 column 4). Extracted text (first 2000 chars): {\n  \"intentType\": \"buy\",\n  \"normalizedIntent\": \"Customer wanted to buy CourtKing Low basketball shoes in size 41, but ultimately declined to proceed with any purchase after 'Airforce 1' was found to be unavailable.\",\n  \"category\": \"Basketball Shoes\",\n  \"productMentions\": [\n    \"CourtKing Low\",\n    \"Airforce 1\"\n  ],\n  \"sentiment\": \"neutral\",\n  \"price_min\": 55,\n  \"price_max\": 55,\n  \"variantAttributes\": {\n    \"size\": \"41\",\n    \"color\": \"electric red\"\n  }\n\nRaw response (first 2000 chars):\n```json\n{\n  \"intentType\": \"buy\",\n  \"normalizedIntent\": \"Customer wanted to buy CourtKing Low basketball shoes in size 41, but ultimately declined to proceed with any purchase after 'Airforce 1' was found to be unavailable.\",\n  \"category\": \"Basketball Shoes\",\n  \"productMentions\": [\n    \"CourtKing Low\",\n    \"Airforce 1\"\n  ],\n  \"sentiment\": \"neutral\",\n  \"price_min\": 55,\n  \"price_max\": 55,\n  \"variantAttributes\": {\n    \"size\": \"41\",\n    \"color\": \"electric red\"\n  },\n  \"recommendationShown\": [\n    \"DunkMaster Elite 5\",\n    \"CourtKing Low\"\n  ],\n  \"accepted\": false,\n  \"rejectionReason\": \"product_not_found\",\n  \"confidence\": 0.95,\n  \"reasoning\": \"\n",
+    "insertId": "694c64a20006bd789b972fd3",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "configuration_name": "postcallwebhook",
+        "revision_name": "postcallwebhook-00034-gej",
+        "project_id": "inzwa-hackathon",
+        "service_name": "postcallwebhook"
+      }
+    },
+    "timestamp": "2025-12-24T22:09:38.441720Z",
+    "labels": {
+      "instanceId": "0007e26d68718fb72cfd4cec658dcadd45c866461c7cf8759d2efc42ec21398384d79006127441c7236a5cda329c4456c40eee45fe2529bbf15f61e2146db97929fd51446f57743038d008162fbcf7",
+      "firebase-functions-hash": "0af9f0921c23fcbf0048d2de2f13ed70103855ee",
+      "execution_id": "kkgd8hkrm9bj",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-managed-by": "cloudfunctions",
+      "goog-drz-cloudfunctions-id": "postcallwebhook",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-24-full/runtimes/nodejs24:nodejs24_20251207_24_11_0_RC00"
+    },
+    "logName": "projects/inzwa-hackathon/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2025-12-24T22:09:38.779802900Z",
+    "spanId": "6634389079396492153"
+  }
+]

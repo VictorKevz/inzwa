@@ -1,9 +1,6 @@
 import { VertexAI } from "@google-cloud/vertexai";
 import * as admin from "firebase-admin";
-import {
-  MerchantMetadata,
-  CallAnalysis,
-} from "../types/intent.types";
+import { MerchantMetadata, CallAnalysis, Intent } from "../types/intent.types";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -91,39 +88,68 @@ function buildPrompt(
 ): string {
   return `You are an expert e-commerce conversation analyst. ${industryContext}
 
-Analyze this conversation and return STRICT JSON with these exact fields:
+Extract intents anchored to specific products or categories. Intent boundaries are determined by product mentions with purchase-related semantics, not session timeline.
 
-- intentType: Use e-commerce data science classification:
-  * "browse": Discovery phase; no specific requirements mentioned (e.g., "show me shoes", "what do you have")
-  * "compare": Consideration phase; user specifies attributes (size, price, color) or asks about availability (e.g., "do you have size 42?", "what colors are available?", "cheapest option?")
-  * "buy": Decision phase; user expresses intent to purchase or "takes" a recommendation (e.g., "I'll take it", "yes", "I want to buy", "that sounds good")
-- normalizedIntent: Complete sentence describing what customer wanted. Include product type, requirements, and outcome. NEVER empty.
-- category: Exact product category mentioned. Capitalize properly. null if not mentioned.
-- productMentions: Array of product names customer mentioned. Empty array if none.
-- sentiment: "positive", "neutral", or "negative"
-- price_min: Minimum price mentioned (number) or null
-- price_max: Maximum price mentioned (number) or null
-- variantAttributes: Object with ANY product attributes customer mentioned. Use lowercase keys. null if none mentioned.
-- recommendationShown: Array of product names agent recommended. Empty array if none.
-- accepted: true (accepted), false (rejected), or null (unclear)
-- rejectionReason: "variant_missing", "out_of_stock", "price_too_high", "product_not_found", "feature_missing", "other", or null
-- confidence: 0-1 score
-- reasoning: Brief explanation of your analysis (1-2 sentences)
+Return STRICT JSON with this structure:
+{
+  "intents": [
+    {
+      "productName": "product name from conversation or null",
+      "category": "Category name or null",
+      "intentType": "buy" | "compare" | "inquire",
+      "outcome": "accepted" | "rejected" | "abandoned" | null,
+      "intentStage": "expressed" | "confirmed" | null,
+      "rejectionReason": "variant_missing" | "out_of_stock" | "price_too_high" | "product_not_found" | "feature_missing" | "other" | null,
+      "confidence": 0-1,
+      "variantAttributes": { "attribute_key": "attribute_value" } or null,
+      "normalizedIntent": "Complete sentence describing this specific intent"
+    }
+  ],
+  "sentiment": "positive" | "neutral" | "negative",
+  "productMentions": ["all product names mentioned"],
+  "recommendationShown": ["all products agent recommended"]
+}
 
-CRITICAL RULES:
-1. Extract what customer WANTS, not what's available. If customer asks about attributes/variants and agent says unavailable, extract the customer's desired attributes.
-2. Extract any price mentioned when customer discusses pricing, budget, or cost (e.g., cheapest, most expensive, price range, budget constraints).
-3. If customer rejects after being told a specific requirement/attribute is unavailable, accepted=false, rejectionReason="variant_missing".
-4. If customer explicitly declines or rejects in any form (e.g., "no", "not interested", "bye", "no thanks"), accepted=false.
-5. normalizedIntent MUST be complete sentence, never empty.
-6. Extract attributes generically for any product type.
+INTENT EXTRACTION RULES:
+1. Create an intent when a product or category is mentioned with purchase-related semantics (request, compare, select, inquire).
+2. Each intent is anchored to ONE product or category. Multiple products in one utterance = separate intents.
+3. One intent can span multiple conversation turns. Do NOT close intents prematurely.
+4. Default outcome to null unless there is certainty. Only set outcome when:
+   - "accepted": User explicitly confirms interest (e.g., "I'll take it", "yes, add it", "I want this")
+   - "rejected": User explicitly declines OR clear system constraint (product unavailable, variant missing)
+   - "abandoned": Conversation ends with no resolution (ONLY set at conversation end, NOT on topic switch)
+
+INTENT TYPES:
+- "buy": Purchase intent expressed (e.g., "I'll take it", "ready to add to cart", "I'll do it myself")
+- "compare": Evaluating options or asking about attributes/availability
+- "inquire": Asking about a product without purchase intent
+
+OUTCOMES (semantics):
+- "accepted": Interest confirmed (NOT purchase completed). User explicitly expressed intent to proceed.
+- "rejected": Explicit rejection OR clear system constraint (product unavailable, variant missing)
+- "abandoned": Conversation ended with no resolution (ONLY set at conversation end)
+- null: Intent still active/unresolved. Default when outcome is uncertain.
+
+INTENT STAGE:
+- "expressed": Product mentioned with interest (inquire/compare intentType)
+- "confirmed": Interest explicitly confirmed (accepted outcome)
+- null: Rejected or abandoned (no stage progression)
+
+CRITICAL GUARDRAILS:
+1. Do NOT infer abandonment on topic switch. Only set "abandoned" if conversation ends with no resolution.
+2. Do NOT infer rejection unless: explicit refusal OR clear system constraint (e.g., "product not found", "size unavailable").
+3. Default outcome to null unless there is certainty. Avoid premature closure.
+4. Multiple accepted intents per session are valid. No exclusivity or replacement logic.
+5. Curiosity after acceptance ≠ rejection. An accepted intent remains accepted.
+6. Extract what customer WANTS, not what's available. Focus on desires even if unavailable.
+7. variantAttributes: Extract ANY product attributes mentioned (use lowercase keys). Works for any product type, industry, or category.
 
 Available products: ${productNames || "None"}
 
 Conversation transcript:
 ${conversationText}
 
-Return ONLY valid JSON.`;
+CRITICAL: Return ONLY valid JSON. No markdown, no code blocks, no explanations, no text before or after. Start with { and end with }.`;
 }
 
 export async function analyzeCall(
@@ -135,20 +161,10 @@ export async function analyzeCall(
 
   if (!conversationText) {
     return {
-      intentType: "browse",
-      normalizedIntent: "",
-      category: null,
-      productMentions: [],
+      intents: [],
       sentiment: "neutral",
-      price_min: null,
-      price_max: null,
-      variantAttributes: null,
+      productMentions: [],
       recommendationShown: [],
-      accepted: null,
-      rejectionReason: null,
-      confidence: 0,
-      reasoning: null,
-      rawResponse: null,
     };
   }
 
@@ -167,27 +183,36 @@ export async function analyzeCall(
     const response = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
-        temperature: 1.0,
-        maxOutputTokens: 2000,
+        temperature: 0.7,
+        maxOutputTokens: 4000,
       },
     });
 
-    const text = response?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const candidate = response?.response?.candidates?.[0];
+    const text = candidate?.content?.parts?.[0]?.text;
     if (!text) {
       throw new Error("Empty response from Vertex AI");
     }
 
-    const jsonStart = text.indexOf("{");
-    const jsonEnd = text.lastIndexOf("}") + 1;
-    if (jsonStart === -1 || jsonEnd === 0) {
-      throw new Error("No JSON found in response");
+    let parsed;
+    try {
+      parsed = JSON.parse(text.trim());
+    } catch {
+      const jsonText = text
+        .trim()
+        .replace(/^```json\s*\n?/i, "")
+        .replace(/^```\s*\n?/i, "")
+        .replace(/\n?\s*```$/i, "")
+        .trim();
+      try {
+        parsed = JSON.parse(jsonText);
+      } catch (parseError) {
+        const errorMsg = `Failed to parse JSON: ${
+          parseError instanceof Error ? parseError.message : String(parseError)
+        }. Response text (first 2000 chars): ${text.substring(0, 2000)}`;
+        throw new Error(errorMsg);
+      }
     }
-
-    const parsed = JSON.parse(text.slice(jsonStart, jsonEnd));
-
-    const intentType = ["browse", "compare", "buy"].includes(parsed.intentType)
-      ? parsed.intentType
-      : "browse";
 
     const sentiment = ["positive", "neutral", "negative"].includes(
       parsed.sentiment
@@ -195,71 +220,107 @@ export async function analyzeCall(
       ? parsed.sentiment
       : "neutral";
 
-    let variantAttributes: { [key: string]: string } | null = null;
-    if (
-      parsed.variantAttributes &&
-      typeof parsed.variantAttributes === "object"
-    ) {
-      const attrs: { [key: string]: string } = {};
-      for (const [key, value] of Object.entries(parsed.variantAttributes)) {
-        if (typeof value === "string" && value.trim()) {
-          attrs[key] = value.trim();
+    const productMentions = Array.isArray(parsed.productMentions)
+      ? parsed.productMentions
+      : [];
+
+    const recommendationShown = Array.isArray(parsed.recommendationShown)
+      ? mapProductNamesToIds(parsed.recommendationShown, productMap)
+      : [];
+
+    const intents: Intent[] = [];
+    if (Array.isArray(parsed.intents)) {
+      for (const intentData of parsed.intents) {
+        const intentType = ["buy", "compare", "inquire"].includes(
+          intentData.intentType
+        )
+          ? intentData.intentType
+          : "inquire";
+
+        const outcome = ["accepted", "rejected", "abandoned", null].includes(
+          intentData.outcome
+        )
+          ? intentData.outcome
+          : null;
+
+        const intentStage = ["expressed", "confirmed", null].includes(
+          intentData.intentStage
+        )
+          ? intentData.intentStage
+          : intentType === "inquire" || intentType === "compare"
+          ? "expressed"
+          : outcome === "accepted"
+          ? "confirmed"
+          : null;
+
+        const rejectionReason =
+          outcome === "rejected" &&
+          [
+            "variant_missing",
+            "out_of_stock",
+            "price_too_high",
+            "product_not_found",
+            "feature_missing",
+            "other",
+          ].includes(intentData.rejectionReason)
+            ? intentData.rejectionReason
+            : null;
+
+        let productId: string | null = null;
+        if (intentData.productName) {
+          productId =
+            productMap.get(intentData.productName.toLowerCase()) || null;
         }
+
+        let variantAttributes: { [key: string]: string } | null = null;
+        if (
+          intentData.variantAttributes &&
+          typeof intentData.variantAttributes === "object"
+        ) {
+          const attrs: { [key: string]: string } = {};
+          for (const [key, value] of Object.entries(
+            intentData.variantAttributes
+          )) {
+            if (typeof value === "string" && value.trim()) {
+              attrs[key] = value.trim();
+            }
+          }
+          variantAttributes = Object.keys(attrs).length > 0 ? attrs : null;
+        }
+
+        intents.push({
+          sessionId: "",
+          productId,
+          productName: intentData.productName || null,
+          category: intentData.category || null,
+          intentType,
+          outcome,
+          intentStage,
+          rejectionReason,
+          confidence: Math.max(0, Math.min(1, intentData.confidence || 0)),
+          estimatedRevenue: null,
+          variantAttributes,
+          normalizedIntent: intentData.normalizedIntent || "",
+          timestamp: null,
+        });
       }
-      variantAttributes = Object.keys(attrs).length > 0 ? attrs : null;
     }
 
     return {
-      intentType,
-      normalizedIntent: parsed.normalizedIntent || "",
-      category: parsed.category || null,
-      productMentions: Array.isArray(parsed.productMentions)
-        ? parsed.productMentions
-        : [],
+      intents,
       sentiment,
-      price_min:
-        parsed.price_min !== null && parsed.price_min !== undefined
-          ? Number(parsed.price_min)
-          : null,
-      price_max:
-        parsed.price_max !== null && parsed.price_max !== undefined
-          ? Number(parsed.price_max)
-          : null,
-      variantAttributes,
-      recommendationShown: Array.isArray(parsed.recommendationShown)
-        ? mapProductNamesToIds(parsed.recommendationShown, productMap)
-        : [],
-      accepted:
-        parsed.accepted === true
-          ? true
-          : parsed.accepted === false
-          ? false
-          : null,
-      rejectionReason:
-        parsed.accepted === false && parsed.rejectionReason
-          ? parsed.rejectionReason
-          : null,
-      confidence: Math.max(0, Math.min(1, parsed.confidence || 0)),
-      reasoning: parsed.reasoning || null,
-      rawResponse: text.substring(0, 2000),
+      productMentions,
+      recommendationShown,
     };
   } catch (err) {
-    console.error("[analyzeCall] Error:", err);
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    console.error(`[analyzeCall] Error: ${errorMessage}`);
+
     return {
-      intentType: "browse",
-      normalizedIntent: "",
-      category: null,
-      productMentions: [],
+      intents: [],
       sentiment: "neutral",
-      price_min: null,
-      price_max: null,
-      variantAttributes: null,
+      productMentions: [],
       recommendationShown: [],
-      accepted: null,
-      rejectionReason: null,
-      confidence: 0,
-      reasoning: null,
-      rawResponse: null,
     };
   }
 }
