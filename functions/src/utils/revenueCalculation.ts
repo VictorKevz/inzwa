@@ -14,13 +14,9 @@ export function calculatePriceExpectation(
   return price_min !== null ? price_min : price_max !== null ? price_max : null;
 }
 
-/**
- * Calculates estimated revenue based on price expectation, intent type, and confidence
- * Higher revenue estimate for "buy" intent, lower for "browse"
- */
 export function calculateEstimatedRevenue(
   priceExpectation: number | null,
-  intentType: "browse" | "compare" | "buy",
+  intentType: "buy" | "compare" | "inquire",
   confidence: number
 ): number | null {
   if (priceExpectation === null) {
