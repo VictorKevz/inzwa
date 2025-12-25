@@ -1,11 +1,12 @@
 # Inzwa Business
 
-A voice-driven intent intelligence system that turns customer conversations into structured business insights. This monorepo contains three integrated layers: a Firebase Functions backend, an analytics dashboard, and a demo storefront.
+A voice-driven intent intelligence system that turns customer conversations into structured business insights. This monorepo contains four integrated layers: a marketing landing page, Firebase Functions backend, an analytics dashboard, and a demo storefront.
 
 ## Monorepo Structure
 
 ```
 inzwa/
+├── marketing/        # Landing / marketing page (Next.js, Vercel entry point)
 ├── functions/        # Firebase Cloud Functions (backend/brains)
 ├── dashboard/        # Next.js app for analytics & merchant insights
 ├── demo-store/       # Next.js sneaker demo with ElevenLabs voice widget
@@ -13,6 +14,33 @@ inzwa/
 ```
 
 ## Architecture Overview
+
+### 0. `marketing/` - Landing Page (Next.js)
+
+**Entry point** for the hackathon demo. Marketing page that explains:
+- Problem: Unstructured voice conversation data
+- Solution: AI-powered NLU analysis
+- Value: Actionable business insights
+
+**Features:**
+- Modern, professional design
+- Clear CTAs to "View Demo Store" and "View Dashboard" (opens in new tabs)
+- Environment variable support for deployment URLs
+
+**Tech stack:**
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+
+**Deployment:**
+Deploy to Vercel with root directory set to `marketing/`. Configure `NEXT_PUBLIC_DEMO_STORE_URL` and `NEXT_PUBLIC_DASHBOARD_URL` environment variables.
+
+**Local development:**
+```bash
+cd marketing
+npm install
+npm run dev
+```
 
 ### 1. `functions/` - Backend (Firebase Cloud Functions)
 
@@ -143,14 +171,21 @@ dashboard/ (visualize insights)
    npm run deploy
    ```
 
-3. **Set up dashboard (when ready):**
+3. **Set up marketing site (entry point):**
+   ```bash
+   cd marketing
+   npm install
+   npm run dev
+   ```
+
+4. **Set up dashboard (when ready):**
    ```bash
    cd dashboard
    npm install
    npm run dev
    ```
 
-4. **Set up demo store (when ready):**
+5. **Set up demo store (when ready):**
    ```bash
    cd demo-store
    npm install
@@ -162,6 +197,10 @@ dashboard/ (visualize insights)
 ### `functions/.env`
 - `GOOGLE_APPLICATION_CREDENTIALS` (optional, for local dev only)
 - Other Vertex AI / Firebase config as needed
+
+### `marketing/.env.local`
+- `NEXT_PUBLIC_DEMO_STORE_URL` - Vercel URL for demo-store deployment
+- `NEXT_PUBLIC_DASHBOARD_URL` - Vercel URL for dashboard deployment
 
 ## Deployment URLs
 
