@@ -19,20 +19,16 @@ npm install
 
 2. Configure Firebase Authentication:
 
-**✅ Already configured!** The demo-store uses the same service account key as functions.
+Create a `.env.local` file with your Google Cloud service account credentials:
 
-The `.env.local` file is set up with:
-```
-GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/service-account-key.json
-```
-
-Next.js automatically loads `.env.local` on startup, so authentication is ready to go!
-
-**To use a different key:**
 ```bash
-# Update .env.local with your path
+# Create .env.local with your credentials path
 echo "GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/service-account-key.json" > .env.local
 ```
+
+**Note:** The demo-store uses the same service account key as functions. Make sure the path points to a valid service account JSON file with Firestore access.
+
+Next.js automatically loads `.env.local` on startup, so authentication will be ready after you create this file.
 
 3. Run development server:
 ```bash
