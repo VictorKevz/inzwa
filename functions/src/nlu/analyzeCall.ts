@@ -88,6 +88,8 @@ function buildPrompt(
 ): string {
   return `You are an expert e-commerce conversation analyst. ${industryContext}
 
+CRITICAL FORMATTING REQUIREMENT: You MUST return ONLY raw JSON. DO NOT use markdown code blocks. DO NOT add any text before or after the JSON. DO NOT explain anything. Start directly with { and end with }. This is a programmatic API call - your response will be parsed as JSON directly.
+
 Extract intents anchored to specific products or categories. Intent boundaries are determined by product mentions with purchase-related semantics, not session timeline.
 
 Return STRICT JSON with this structure:
@@ -149,7 +151,7 @@ Available products: ${productNames || "None"}
 Conversation transcript:
 ${conversationText}
 
-CRITICAL: Return ONLY valid JSON. No markdown, no code blocks, no explanations, no text before or after. Start with { and end with }.`;
+FINAL REMINDER: Return ONLY raw JSON starting with { and ending with }. NO markdown, NO code blocks, NO explanations, NO text before or after. Your response must be parseable as JSON.parse() directly.`;
 }
 
 export async function analyzeCall(
@@ -184,7 +186,8 @@ export async function analyzeCall(
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 4000,
+        maxOutputTokens: 8000, // Increased to prevent JSON truncation
+        responseMimeType: "application/json", // Force JSON output format
       },
     });
 
@@ -196,22 +199,46 @@ export async function analyzeCall(
 
     let parsed;
     try {
-      parsed = JSON.parse(text.trim());
-    } catch {
-      const jsonText = text
-        .trim()
+      // First, try to extract JSON by finding the first { and last }
+      // This handles markdown code blocks and any text before/after
+      let jsonText = text.trim();
+
+      // Remove markdown code blocks if present
+      jsonText = jsonText
         .replace(/^```json\s*\n?/i, "")
         .replace(/^```\s*\n?/i, "")
         .replace(/\n?\s*```$/i, "")
         .trim();
-      try {
-        parsed = JSON.parse(jsonText);
-      } catch (parseError) {
-        const errorMsg = `Failed to parse JSON: ${
-          parseError instanceof Error ? parseError.message : String(parseError)
-        }. Response text (first 2000 chars): ${text.substring(0, 2000)}`;
-        throw new Error(errorMsg);
+
+      // Find JSON object boundaries
+      const jsonStart = jsonText.indexOf("{");
+      const jsonEnd = jsonText.lastIndexOf("}");
+
+      if (jsonStart === -1 || jsonEnd === -1 || jsonEnd <= jsonStart) {
+        throw new Error("Could not find JSON object boundaries in response");
       }
+
+      // Extract just the JSON portion
+      jsonText = jsonText.slice(jsonStart, jsonEnd + 1);
+
+      // Try parsing
+      parsed = JSON.parse(jsonText);
+    } catch (parseError) {
+      // If parsing fails, check if it's due to truncation
+      const isTruncated =
+        text.includes("MAX_TOKENS") ||
+        (text.match(/\{/g)?.length || 0) > (text.match(/\}/g)?.length || 0);
+
+      const errorMsg = `Failed to parse JSON: ${
+        parseError instanceof Error ? parseError.message : String(parseError)
+      }. ${
+        isTruncated
+          ? "Response appears to be truncated (MAX_TOKENS limit reached)."
+          : ""
+      } Response text (first 2000 chars): ${text.substring(0, 2000)}`;
+
+      console.error("[analyzeCall] JSON parsing error:", errorMsg);
+      throw new Error(errorMsg);
     }
 
     const sentiment = ["positive", "neutral", "negative"].includes(
