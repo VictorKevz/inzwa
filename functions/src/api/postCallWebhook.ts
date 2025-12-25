@@ -1,18 +1,26 @@
 import { analyzeCall, fetchMerchantMetadata } from "../nlu/analyzeCall";
 import {
-  calculatePriceExpectation,
   calculateEstimatedRevenue,
 } from "../utils/revenueCalculation";
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
-import { ElevenLabsWebhookPayload } from "../types/intent.types";
+import { ElevenLabsWebhookPayload, Session, Intent } from "../types/intent.types";
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 const db = admin.firestore();
 const FieldValue = admin.firestore.FieldValue;
+
+function generateIntentId(
+  sessionId: string,
+  productName: string | null,
+  intentType: string
+): string {
+  const key = `${sessionId}|${productName || "null"}|${intentType}`;
+  return crypto.createHash("sha256").update(key).digest("hex").substring(0, 16);
+}
 
 function validateWebhookSignature(
   signature: string | undefined,
@@ -148,71 +156,104 @@ exports.postCallWebhook = functions.https.onRequest(
         merchantMetadata
       );
 
-      const existingIntentQuery = await db
+      const sessionRef = db
         .collection("merchants")
         .doc(merchantId)
-        .collection("intents")
-        .where("conversationId", "==", conversation_id)
-        .limit(1)
-        .get();
+        .collection("sessions")
+        .doc(conversation_id);
 
-      if (!existingIntentQuery.empty) {
-        return res.status(200).json({
-          message: "Intent already processed for this conversation",
+      const existingSession = await sessionRef.get();
+      let isNewSession = !existingSession.exists;
+
+      if (isNewSession) {
+        const session: Session = {
+          sessionId: conversation_id,
+          merchantId: merchantId,
+          agentId: agent_id,
           conversationId: conversation_id,
-          intentsProcessed: 1,
-        });
+          source: "voice",
+          timestamp: FieldValue.serverTimestamp(),
+          transcript: structuredTranscript,
+          rawText: fullConversationText,
+          sentiment: analysis.sentiment,
+          productMentions: analysis.productMentions,
+          recommendationShown: analysis.recommendationShown,
+        };
+
+        await sessionRef.set(session, { merge: false });
       }
 
-      // Calculate derived fields using helper functions
-      const priceExpectation = calculatePriceExpectation(
-        analysis.price_min,
-        analysis.price_max
+      const intentsWithRevenue: Intent[] = await Promise.all(
+        analysis.intents.map(async (intent) => {
+          let priceExpectation = intent.estimatedRevenue;
+          
+          if (!priceExpectation && intent.productId) {
+            try {
+              const productDoc = await db
+                .collection("merchants")
+                .doc(merchantId)
+                .collection("products")
+                .doc(intent.productId)
+                .get();
+              
+              if (productDoc.exists) {
+                const productData = productDoc.data();
+                priceExpectation = productData?.price || null;
+              }
+            } catch {
+              priceExpectation = null;
+            }
+          }
+
+          const estimatedRevenue = calculateEstimatedRevenue(
+            priceExpectation,
+            intent.intentType,
+            intent.confidence
+          );
+
+          return {
+            ...intent,
+            sessionId: conversation_id,
+            estimatedRevenue,
+            timestamp: FieldValue.serverTimestamp(),
+          };
+        })
       );
 
-      const estimatedRevenue = calculateEstimatedRevenue(
-        priceExpectation,
-        analysis.intentType,
-        analysis.confidence
-      );
+      const intentIds: string[] = [];
+      for (const intent of intentsWithRevenue) {
+        const intentId = generateIntentId(
+          conversation_id,
+          intent.productName || "",
+          intent.intentType
+        );
 
-      // Build intent event from unified analysis
-      const intentEvent = {
-        sessionId: conversation_id,
-        merchantId: merchantId,
-        rawText: fullConversationText,
-        transcript: structuredTranscript,
-        intentType: analysis.intentType,
-        normalizedIntent: analysis.normalizedIntent,
-        category: analysis.category,
-        productMentions: analysis.productMentions,
-        sentiment: analysis.sentiment,
-        confidence: analysis.confidence,
-        recommendationShown: analysis.recommendationShown,
-        accepted: analysis.accepted,
-        rejectionReason: analysis.rejectionReason,
-        priceExpectation: priceExpectation,
-        estimatedRevenue: estimatedRevenue,
-        variantAttributes: analysis.variantAttributes,
-        reasoning: analysis.reasoning,
-        rawResponse: analysis.rawResponse,
-        agentId: agent_id,
-        conversationId: conversation_id,
-        source: "voice",
-        timestamp: FieldValue.serverTimestamp(),
-      };
+        const intentData = {
+          ...intent,
+          intentId,
+        };
 
-      const docRef = await db
-        .collection("merchants")
-        .doc(merchantId)
-        .collection("intents")
-        .add(intentEvent);
+        await sessionRef
+          .collection("intents")
+          .doc(intentId)
+          .set(intentData, { merge: false });
+
+        await db
+          .collection("merchants")
+          .doc(merchantId)
+          .collection("intents")
+          .doc(intentId)
+          .set(intentData, { merge: false });
+
+        intentIds.push(intentId);
+      }
 
       res.status(200).json({
         message: "Transcript processed successfully",
         conversationId: conversation_id,
-        intentsProcessed: 1,
-        intentId: docRef.id,
+        sessionId: sessionRef.id,
+        intentsProcessed: intentsWithRevenue.length,
+        intentIds: intentIds,
       });
     } catch (err) {
       console.error("[postCallWebhook] Error:", err);
