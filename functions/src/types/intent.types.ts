@@ -7,21 +7,43 @@ export interface MerchantMetadata {
   locale: string;
 }
 
-export interface CallAnalysis {
-  intentType: "browse" | "compare" | "buy";
-  normalizedIntent: string;
+export interface Intent {
+  intentId?: string;
+  sessionId: string;
+  productId: string | null;
+  productName: string | null;
   category: string | null;
-  productMentions: string[];
-  sentiment: "positive" | "neutral" | "negative";
-  price_min: number | null;
-  price_max: number | null;
-  variantAttributes: { [key: string]: string } | null;
-  recommendationShown: string[];
-  accepted: boolean | null;
-  rejectionReason: string | null;
+  intentType: "buy" | "compare" | "inquire";
+  outcome: "accepted" | "rejected" | "abandoned" | null;
+  intentStage: "expressed" | "confirmed" | null;
+  rejectionReason: "variant_missing" | "out_of_stock" | "price_too_high" | "product_not_found" | "feature_missing" | "other" | null;
   confidence: number;
-  reasoning?: string | null;
-  rawResponse?: string | null;
+  estimatedRevenue: number | null;
+  variantAttributes: { [key: string]: string } | null;
+  normalizedIntent: string;
+  timestamp: any;
+}
+
+export interface Session {
+  sessionId: string;
+  merchantId: string;
+  agentId: string;
+  conversationId: string;
+  source: "voice";
+  timestamp: any;
+  transcript: Array<{ agent?: string; user?: string }>;
+  rawText: string;
+  transcriptRef?: string;
+  sentiment: "positive" | "neutral" | "negative";
+  productMentions: string[];
+  recommendationShown: string[];
+}
+
+export interface CallAnalysis {
+  intents: Intent[];
+  sentiment: "positive" | "neutral" | "negative";
+  productMentions: string[];
+  recommendationShown: string[];
 }
 
 export interface ExtractedProductIntent {
