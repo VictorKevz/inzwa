@@ -10,6 +10,7 @@ export interface MerchantMetadata {
 export interface Intent {
   intentId?: string;
   sessionId: string;
+  merchantId?: string; // Added for easier querying across intents collection
   productId: string | null;
   productName: string | null;
   category: string | null;

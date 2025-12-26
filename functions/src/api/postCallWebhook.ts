@@ -13,13 +13,17 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 const FieldValue = admin.firestore.FieldValue;
 
-function generateIntentId(
-  sessionId: string,
-  productName: string | null,
-  intentType: string
-): string {
-  const key = `${sessionId}|${productName || "null"}|${intentType}`;
-  return crypto.createHash("sha256").update(key).digest("hex").substring(0, 16);
+/**
+ * Generates a unique intent ID using auto-generated Firestore document ID.
+ * This ensures each intent gets a unique ID, even if the same product appears
+ * multiple times in a session with the same intent type.
+ */
+function createIntentRef(merchantId: string): admin.firestore.DocumentReference {
+  return db
+    .collection("merchants")
+    .doc(merchantId)
+    .collection("intents")
+    .doc();
 }
 
 function validateWebhookSignature(
@@ -220,30 +224,22 @@ exports.postCallWebhook = functions.https.onRequest(
         })
       );
 
+      // Store intents in flat collection with auto-generated unique IDs
+      // This ensures we capture ALL intents, even if the same product appears multiple times
       const intentIds: string[] = [];
       for (const intent of intentsWithRevenue) {
-        const intentId = generateIntentId(
-          conversation_id,
-          intent.productName || "",
-          intent.intentType
-        );
+        // Create intent document with auto-generated ID to ensure uniqueness
+        const intentRef = createIntentRef(merchantId);
+        const intentId = intentRef.id;
 
-        const intentData = {
+        const intentData: Intent = {
           ...intent,
           intentId,
+          merchantId, // Include merchantId for easier querying
         };
 
-        await sessionRef
-          .collection("intents")
-          .doc(intentId)
-          .set(intentData, { merge: false });
-
-        await db
-          .collection("merchants")
-          .doc(merchantId)
-          .collection("intents")
-          .doc(intentId)
-          .set(intentData, { merge: false });
+        // Store only in flat intents collection (no nested subcollection)
+        await intentRef.set(intentData, { merge: false });
 
         intentIds.push(intentId);
       }
