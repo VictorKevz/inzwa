@@ -113,8 +113,11 @@ Return STRICT JSON with this structure:
 }
 
 INTENT EXTRACTION RULES:
-1. Create an intent when a product or category is mentioned with purchase-related semantics (request, compare, select, inquire).
-2. Each intent is anchored to ONE product or category. Multiple products in one utterance = separate intents.
+1. Create an intent ONLY when a SPECIFIC PRODUCT NAME is mentioned with purchase-related semantics (request, compare, select, inquire).
+   - REQUIRED: productName must be a specific product name from the conversation (e.g., "DunkMaster Elite 5", "CourtKing Low")
+   - DO NOT create intents for category-only mentions (e.g., "basketball shoes" without a specific product name)
+   - Category-only mentions are captured in productMentions array, not as separate intents
+2. Each intent is anchored to ONE specific product. Multiple products in one utterance = separate intents.
 3. One intent can span multiple conversation turns. Do NOT close intents prematurely.
 4. Default outcome to null unless there is certainty. Only set outcome when:
    - "accepted": User explicitly confirms interest (e.g., "I'll take it", "yes, add it", "I want this")
@@ -313,6 +316,15 @@ export async function analyzeCall(
             }
           }
           variantAttributes = Object.keys(attrs).length > 0 ? attrs : null;
+        }
+
+        // Filter out category-only intents - require a specific product name
+        // Category-only mentions are already captured in productMentions array
+        if (!intentData.productName || intentData.productName.trim() === "") {
+          console.log(
+            `[analyzeCall] Skipping category-only intent: category="${intentData.category}", no productName`
+          );
+          continue; // Skip this intent - it's category-only
         }
 
         intents.push({

@@ -179,9 +179,8 @@ exports.postCallWebhook = functions.https.onRequest(
           timestamp: FieldValue.serverTimestamp(),
           transcript: structuredTranscript,
           rawText: fullConversationText,
-          sentiment: analysis.sentiment,
-          productMentions: analysis.productMentions,
-          recommendationShown: analysis.recommendationShown,
+          // Removed redundant fields: sentiment, productMentions, recommendationShown
+          // These can be aggregated from intents if needed
         };
 
         await sessionRef.set(session, { merge: false });

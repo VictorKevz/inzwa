@@ -35,9 +35,11 @@ export interface Session {
   transcript: Array<{ agent?: string; user?: string }>;
   rawText: string;
   transcriptRef?: string;
-  sentiment: "positive" | "neutral" | "negative";
-  productMentions: string[];
-  recommendationShown: string[];
+  // Removed: sentiment, productMentions, recommendationShown
+  // These are redundant/misleading at session level:
+  // - sentiment: ambiguous when user accepts some products and rejects others
+  // - productMentions: can be aggregated from intents
+  // - recommendationShown: can be aggregated from intents
 }
 
 export interface CallAnalysis {
