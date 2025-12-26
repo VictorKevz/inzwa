@@ -9,7 +9,10 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 const vertexAI = new VertexAI({
-  project: "inzwa-hackathon",
+  project:
+    process.env.GCP_PROJECT_ID ||
+    process.env.FIREBASE_PROJECT_ID ||
+    "inzwa-hackathon",
   location: "us-central1",
 });
 
@@ -100,9 +103,9 @@ Return STRICT JSON with this structure:
       "category": "Category name or null",
       "intentType": "buy" | "compare" | "inquire",
       "outcome": "accepted" | "rejected" | "abandoned" | null,
-      "intentStage": "expressed" | "confirmed" | null,
       "rejectionReason": "variant_missing" | "out_of_stock" | "price_too_high" | "product_not_found" | "feature_missing" | "other" | null,
       "confidence": 0-1,
+      "customerPriceExpectation": number or null,
       "variantAttributes": { "attribute_key": "attribute_value" } or null,
       "normalizedIntent": "Complete sentence describing this specific intent"
     }
@@ -135,10 +138,11 @@ OUTCOMES (semantics):
 - "abandoned": Conversation ended with no resolution (ONLY set at conversation end)
 - null: Intent still active/unresolved. Default when outcome is uncertain.
 
-INTENT STAGE:
-- "expressed": Product mentioned with interest (inquire/compare intentType)
-- "confirmed": Interest explicitly confirmed (accepted outcome)
-- null: Rejected or abandoned (no stage progression)
+PRICE EXTRACTION:
+- customerPriceExpectation: Extract the specific price or price range the customer mentioned (e.g., "I'd pay $40", "around $50", "under $100").
+- Only include if the customer explicitly states a price expectation in the conversation.
+- For "price_too_high" rejections, this is especially important - extract what price the customer would be willing to pay.
+- Return null if no price expectation is mentioned.
 
 CRITICAL GUARDRAILS:
 1. Do NOT infer abandonment on topic switch. Only set "abandoned" if conversation ends with no resolution.
@@ -189,8 +193,8 @@ export async function analyzeCall(
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.7,
-        maxOutputTokens: 8000, // Increased to prevent JSON truncation
-        responseMimeType: "application/json", // Force JSON output format
+        maxOutputTokens: 8000,
+        responseMimeType: "application/json",
       },
     });
 
@@ -202,18 +206,14 @@ export async function analyzeCall(
 
     let parsed;
     try {
-      // First, try to extract JSON by finding the first { and last }
-      // This handles markdown code blocks and any text before/after
       let jsonText = text.trim();
 
-      // Remove markdown code blocks if present
       jsonText = jsonText
         .replace(/^```json\s*\n?/i, "")
         .replace(/^```\s*\n?/i, "")
         .replace(/\n?\s*```$/i, "")
         .trim();
 
-      // Find JSON object boundaries
       const jsonStart = jsonText.indexOf("{");
       const jsonEnd = jsonText.lastIndexOf("}");
 
@@ -221,13 +221,9 @@ export async function analyzeCall(
         throw new Error("Could not find JSON object boundaries in response");
       }
 
-      // Extract just the JSON portion
       jsonText = jsonText.slice(jsonStart, jsonEnd + 1);
-
-      // Try parsing
       parsed = JSON.parse(jsonText);
     } catch (parseError) {
-      // If parsing fails, check if it's due to truncation
       const isTruncated =
         text.includes("MAX_TOKENS") ||
         (text.match(/\{/g)?.length || 0) > (text.match(/\}/g)?.length || 0);
@@ -273,16 +269,6 @@ export async function analyzeCall(
           ? intentData.outcome
           : null;
 
-        const intentStage = ["expressed", "confirmed", null].includes(
-          intentData.intentStage
-        )
-          ? intentData.intentStage
-          : intentType === "inquire" || intentType === "compare"
-          ? "expressed"
-          : outcome === "accepted"
-          ? "confirmed"
-          : null;
-
         const rejectionReason =
           outcome === "rejected" &&
           [
@@ -318,13 +304,22 @@ export async function analyzeCall(
           variantAttributes = Object.keys(attrs).length > 0 ? attrs : null;
         }
 
-        // Filter out category-only intents - require a specific product name
-        // Category-only mentions are already captured in productMentions array
+        let customerPriceExpectation: number | null = null;
+        if (
+          intentData.customerPriceExpectation !== null &&
+          intentData.customerPriceExpectation !== undefined
+        ) {
+          const priceValue =
+            typeof intentData.customerPriceExpectation === "number"
+              ? intentData.customerPriceExpectation
+              : parseFloat(String(intentData.customerPriceExpectation));
+          if (!isNaN(priceValue) && priceValue > 0) {
+            customerPriceExpectation = priceValue;
+          }
+        }
+
         if (!intentData.productName || intentData.productName.trim() === "") {
-          console.log(
-            `[analyzeCall] Skipping category-only intent: category="${intentData.category}", no productName`
-          );
-          continue; // Skip this intent - it's category-only
+          continue;
         }
 
         intents.push({
@@ -334,10 +329,12 @@ export async function analyzeCall(
           category: intentData.category || null,
           intentType,
           outcome,
-          intentStage,
           rejectionReason,
           confidence: Math.max(0, Math.min(1, intentData.confidence || 0)),
           estimatedRevenue: null,
+          opportunityCost: null,
+          opportunityCostIsEstimated: false,
+          customerPriceExpectation,
           variantAttributes,
           normalizedIntent: intentData.normalizedIntent || "",
           timestamp: null,

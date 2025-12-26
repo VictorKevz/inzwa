@@ -1,11 +1,17 @@
 import { analyzeCall, fetchMerchantMetadata } from "../nlu/analyzeCall";
 import {
   calculateEstimatedRevenue,
+  calculateOpportunityCost,
+  estimatePriceFromSimilarProducts,
 } from "../utils/revenueCalculation";
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
-import { ElevenLabsWebhookPayload, Session, Intent } from "../types/intent.types";
+import {
+  ElevenLabsWebhookPayload,
+  Session,
+  Intent,
+} from "../types/intent.types";
 
 if (!admin.apps.length) {
   admin.initializeApp();
@@ -18,12 +24,10 @@ const FieldValue = admin.firestore.FieldValue;
  * This ensures each intent gets a unique ID, even if the same product appears
  * multiple times in a session with the same intent type.
  */
-function createIntentRef(merchantId: string): admin.firestore.DocumentReference {
-  return db
-    .collection("merchants")
-    .doc(merchantId)
-    .collection("intents")
-    .doc();
+function createIntentRef(
+  merchantId: string
+): admin.firestore.DocumentReference {
+  return db.collection("merchants").doc(merchantId).collection("intents").doc();
 }
 
 function validateWebhookSignature(
@@ -93,7 +97,7 @@ exports.postCallWebhook = functions.https.onRequest(
           webhookSecret
         );
         if (!isValid) {
-          console.warn("[postCallWebhook] Invalid webhook signature");
+          return res.status(401).json({ error: "Invalid webhook signature" });
         }
       }
 
@@ -116,7 +120,6 @@ exports.postCallWebhook = functions.https.onRequest(
       const { data } = payload;
       const { conversation_id, agent_id, transcript, metadata } = data;
 
-      // Get merchantId from metadata or use default for demo
       const merchantId =
         metadata?.merchantId || metadata?.merchant_id || "merchant_001";
 
@@ -179,8 +182,6 @@ exports.postCallWebhook = functions.https.onRequest(
           timestamp: FieldValue.serverTimestamp(),
           transcript: structuredTranscript,
           rawText: fullConversationText,
-          // Removed redundant fields: sentiment, productMentions, recommendationShown
-          // These can be aggregated from intents if needed
         };
 
         await sessionRef.set(session, { merge: false });
@@ -188,9 +189,8 @@ exports.postCallWebhook = functions.https.onRequest(
 
       const intentsWithRevenue: Intent[] = await Promise.all(
         analysis.intents.map(async (intent) => {
-          let priceExpectation = intent.estimatedRevenue;
-          
-          if (!priceExpectation && intent.productId) {
+          let productPrice: number | null = null;
+          if (intent.productId) {
             try {
               const productDoc = await db
                 .collection("merchants")
@@ -198,46 +198,75 @@ exports.postCallWebhook = functions.https.onRequest(
                 .collection("products")
                 .doc(intent.productId)
                 .get();
-              
+
               if (productDoc.exists) {
                 const productData = productDoc.data();
-                priceExpectation = productData?.price || null;
+                productPrice = productData?.price || null;
               }
             } catch {
-              priceExpectation = null;
+              productPrice = null;
             }
           }
 
-          const estimatedRevenue = calculateEstimatedRevenue(
-            priceExpectation,
-            intent.intentType,
-            intent.confidence
-          );
+          let estimatedRevenue: number | null = null;
+          if (intent.outcome === "accepted" || intent.outcome === null) {
+            estimatedRevenue = calculateEstimatedRevenue(
+              productPrice,
+              intent.intentType,
+              intent.confidence
+            );
+          }
+
+          let opportunityCost: number | null = null;
+          let opportunityCostIsEstimated = false;
+          if (intent.outcome === "rejected" && intent.rejectionReason) {
+            let estimatedSimilarProductPrice: number | null = null;
+
+            if (
+              intent.rejectionReason === "product_not_found" &&
+              intent.category
+            ) {
+              estimatedSimilarProductPrice =
+                await estimatePriceFromSimilarProducts(
+                  merchantId,
+                  intent.category,
+                  db
+                );
+            }
+
+            const costResult = calculateOpportunityCost(
+              intent.rejectionReason,
+              productPrice,
+              intent.customerPriceExpectation,
+              estimatedSimilarProductPrice
+            );
+
+            opportunityCost = costResult.opportunityCost;
+            opportunityCostIsEstimated = costResult.isEstimated;
+          }
 
           return {
             ...intent,
             sessionId: conversation_id,
             estimatedRevenue,
+            opportunityCost,
+            opportunityCostIsEstimated,
             timestamp: FieldValue.serverTimestamp(),
           };
         })
       );
 
-      // Store intents in flat collection with auto-generated unique IDs
-      // This ensures we capture ALL intents, even if the same product appears multiple times
       const intentIds: string[] = [];
       for (const intent of intentsWithRevenue) {
-        // Create intent document with auto-generated ID to ensure uniqueness
         const intentRef = createIntentRef(merchantId);
         const intentId = intentRef.id;
 
         const intentData: Intent = {
           ...intent,
           intentId,
-          merchantId, // Include merchantId for easier querying
+          merchantId,
         };
 
-        // Store only in flat intents collection (no nested subcollection)
         await intentRef.set(intentData, { merge: false });
 
         intentIds.push(intentId);

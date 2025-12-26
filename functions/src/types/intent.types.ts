@@ -16,10 +16,12 @@ export interface Intent {
   category: string | null;
   intentType: "buy" | "compare" | "inquire";
   outcome: "accepted" | "rejected" | "abandoned" | null;
-  intentStage: "expressed" | "confirmed" | null;
   rejectionReason: "variant_missing" | "out_of_stock" | "price_too_high" | "product_not_found" | "feature_missing" | "other" | null;
   confidence: number;
-  estimatedRevenue: number | null;
+  estimatedRevenue: number | null; // For accepted/active intents
+  opportunityCost: number | null; // For rejected intents only
+  opportunityCostIsEstimated: boolean; // True if opportunityCost is a fallback estimate
+  customerPriceExpectation: number | null; // Customer's stated price expectation (extracted from conversation)
   variantAttributes: { [key: string]: string } | null;
   normalizedIntent: string;
   timestamp: any;
